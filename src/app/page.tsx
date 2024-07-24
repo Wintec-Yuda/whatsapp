@@ -1,23 +1,41 @@
+"use client";
+
 import { PiUsersThreeFill } from "react-icons/pi";
-import { FaNfcDirectional } from "react-icons/fa6";
+import { FaNfcDirectional, FaPlus, FaArrowLeft } from "react-icons/fa6";
 import { IoChatbubbleOutline, IoCheckmarkDone, IoVideocam } from "react-icons/io5";
 import { FiFolderPlus } from "react-icons/fi";
 import { HiOutlineDotsVertical } from "react-icons/hi";
-import { IoMdSearch } from "react-icons/io";
+import { IoMdSearch, IoMdSend } from "react-icons/io";
+import { MdOutlineInsertEmoticon } from "react-icons/md";
 import chats from "@/data/chats";
 import chattings from "@/data/chattings";
+import {useMediaQuery} from "usehooks-ts"
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [isChat, setIsChat] = useState(false);
+  const matches = useMediaQuery('(max-width: 768px)')
+
+  useEffect(() => {
+    if (!matches) {
+      setIsChat(false);
+    }
+  }, [matches]);
+
+  const handleChat = () => {
+    setIsChat(true);
+  };
+
   return (
     <main className="py-4 px-8 bg-zinc-950 min-h-screen">
       {/* left */}
       <section className="flex bg-zinc-800 rounded-md">
-        <aside className="w-1/3 border-r border-zinc-600">
-          <header className="px-4 py-2 flex items-center">
-            <div className="w-1/2">
+        <aside className={`w-full lg:w-1/3 border-r border-zinc-600 ${isChat ? "hidden" : "block"}`}>
+          <header className="px-4 py-2 flex items-center justify-between">
+            <div className="">
               <img src="/luffy.jpg" alt="luffy" className="rounded-full w-10 h-10" />
             </div>
-            <div className="w-1/2 grid grid-cols-5">
+            <div className="grid grid-cols-5 gap-4">
               <PiUsersThreeFill size={22} />
               <FaNfcDirectional size={22} />
               <IoChatbubbleOutline size={22} />
@@ -40,7 +58,7 @@ export default function Home() {
             {/* chatting */}
             <div className="border-t border-zinc-600 overflow-y-auto max-h-[calc(100vh-13rem)]">
               {chats.map((chat) => (
-                <div className="hover:bg-zinc-800" key={chat.id}>
+                <div className="hover:bg-zinc-800 cursor-pointer md:cursor-default" key={chat.id} onClick={matches? handleChat : undefined} >
                   <div className="py-4 px-2 flex justify-between">
                     <div className="flex gap-4">
                       <img src={chat.avatar} alt="AI Robot" className="w-12 h-12 rounded-full" />
@@ -60,16 +78,17 @@ export default function Home() {
           </main>
         </aside>
         {/* right */}
-        <aside className="w-2/3">
-          <header className="px-4 py-2 flex items-center">
-            <div className="w-5/6 flex gap-4 items-center">
+        <aside className={`${isChat ? "block z-10 w-full" : "hidden"} z-0 md:block lg:w-2/3`}>
+          <header className="px-4 py-1 flex items-center justify-between">
+            <div className="flex gap-4 items-center">
+              <FaArrowLeft size={22} onClick={() => setIsChat(false)} className={`${isChat ? "block" : "hidden"} cursor-pointer`} />
               <img src="/ai.jpg" alt="luffy" className="rounded-full w-10 h-10" />
               <div>
                 <p>Chat GTP</p>
                 <p className="text-sm text-zinc-400">Online</p>
               </div>
             </div>
-            <div className="w-1/6 grid grid-cols-3">
+            <div className="grid grid-cols-3 gap-4">
               <IoVideocam size={22} />
               <IoMdSearch size={22} />
               <HiOutlineDotsVertical size={22} />
@@ -86,6 +105,12 @@ export default function Home() {
                 </div>
               </div>
             ))}
+            <div className="sticky bottom-0 flex gap-6 bg-zinc-800 py-4 px-6 items-center">
+              <MdOutlineInsertEmoticon size={30} />
+              <FaPlus size={25} />
+              <input type="text" className="w-full bg-transparent focus:outline-none bg-zinc-700 px-4 py-1 rounded" placeholder="Type here..." />
+              <IoMdSend size={32} />
+            </div>
           </main>
         </aside>
       </section>
