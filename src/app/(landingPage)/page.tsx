@@ -9,8 +9,12 @@ import { IoMdSearch, IoMdSend } from "react-icons/io";
 import { MdOutlineInsertEmoticon, MdDarkMode, MdOutlineLightMode } from "react-icons/md";
 import chats from "@/data/chats";
 import chattings from "@/data/chattings";
-import {useMediaQuery} from "usehooks-ts"
+import { useMediaQuery } from "usehooks-ts"
 import { useEffect, useState } from "react";
+import WrapperMode from "@/components/WrapperMode";
+import { useDispatch, useSelector } from "react-redux";
+import { setThemeMode } from "@/store/slices/theme";
+import { RootState } from "@/store";
 
 interface ColorClasses {
   bg1: string;
@@ -507,9 +511,12 @@ const colors = ["slate", "gray", "zinc", "neutral", "stone", "red", "orange", "a
 export default function Home() {
   const [isChat, setIsChat] = useState(false);
   const [color, setColor] = useState('slate');
-  const [isDarkMode, setIsDarkMode] = useState(true);
 
   const matches = useMediaQuery('(max-width: 768px)')
+
+  const dispatch = useDispatch();
+
+  const mode = useSelector((state: RootState) => state.theme.mode);
 
   useEffect(() => {
     if (!matches) {
@@ -525,124 +532,126 @@ export default function Home() {
     setColor(event.target.value);
   };
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(prev => !prev);
+  const toggleMode = () => {
+    dispatch(setThemeMode(mode === "dark" ? "light" : "dark"));
   };
 
   return (
-    <main className={`py-6 px-8 ${colorMap[color].bg1} min-h-screen text-black dark:text-white`}>
-      {/* theme color */}
-      <div className={`fixed -top-12 -right-12 rounded-full w-40 h-40 ${colorMap[color].bg1}`}>
-        <select
-          name="theme"
-          id="theme"
-          className={`text-black dark:text-white ${colorMap[color].bg5} absolute bottom-16 right-14`}
-          onChange={handleThemeChange}
-        >
-          {colors.map((color) => (
-            <option key={color} value={color}>
-              {color}
-            </option>
-          ))}
-        </select>
-      </div>
+    <WrapperMode>
+      <main className={`py-6 px-8 ${colorMap[color].bg1} min-h-screen text-black dark:text-white`}>
+        {/* theme color */}
+        <div className={`fixed -top-12 -right-12 rounded-full w-40 h-40 ${colorMap[color].bg1}`}>
+          <select
+            name="theme"
+            id="theme"
+            className={`text-black dark:text-white ${colorMap[color].bg5} absolute bottom-16 right-14`}
+            onChange={handleThemeChange}
+          >
+            {colors.map((color) => (
+              <option key={color} value={color}>
+                {color}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      {/* theme mode */}
-      <div className={`fixed -top-7 -left-7 w-20 h-20 ${colorMap[color].bg1} rounded-full`}>
-        <button
-          className={`text-black dark:text-white ${colorMap[color].bg1} rounded-full absolute bottom-3 right-3`}
-          onClick={toggleDarkMode}
-        >
-          {isDarkMode ? <MdDarkMode size={35} className={`${colorMap[color].bg5} rounded-full p-1`} /> : <MdOutlineLightMode size={35} className={`${colorMap[color].bg5} rounded-full p-1`} />}
-        </button>
-      </div>
+        {/* theme mode */}
+        <div className={`fixed -top-7 -left-7 w-20 h-20 ${colorMap[color].bg1} rounded-full`}>
+          <button
+            className={`text-black dark:text-white ${colorMap[color].bg1} rounded-full absolute bottom-3 right-3`}
+            onClick={toggleMode}
+          >
+            {mode === "dark" ? <MdDarkMode size={35} className={`${colorMap[color].bg5} rounded-full p-1`} /> : <MdOutlineLightMode size={35} className={`${colorMap[color].bg5} rounded-full p-1`} />}
+          </button>
+        </div>
 
-      {/* left */}
-      <section className={`flex ${colorMap[color].bg4} rounded-md`}>
-        <aside className={`w-full lg:w-1/3 border-r ${colorMap[color].border1} ${isChat ? "hidden" : "block"}`}>
-          <header className="px-4 py-2 flex items-center justify-between">
-            <div className="">
-              <img src="/luffy.jpg" alt="luffy" className="rounded-full w-10 h-10" />
-            </div>
-            <div className="grid grid-cols-5 gap-4 me-20 md:me-0">
-              <PiUsersThreeFill size={22} />
-              <FaNfcDirectional size={22} />
-              <IoChatbubbleOutline size={22} />
-              <FiFolderPlus size={22} />
-              <HiOutlineDotsVertical size={22} />
-            </div>
-          </header>
-          <main className={`${colorMap[color].bg4}`}>
-            <div className="p-2">
-              <div className={`flex ${colorMap[color].bg3} ${colorMap[color].bg2} p-2 rounded items-center`}>
-                <IoMdSearch size={25} className="bg-transparent" />
-                <input type="text" placeholder="search" className="w-full py-1 ps-6 text-sm bg-transparent focus:outline-none" />
+        {/* left */}
+        <section className={`flex ${colorMap[color].bg4} rounded-md`}>
+          <aside className={`w-full lg:w-1/3 border-r ${colorMap[color].border1} ${isChat ? "hidden" : "block"}`}>
+            <header className="px-4 py-2 flex items-center justify-between">
+              <div className="">
+                <img src="/luffy.jpg" alt="luffy" className="rounded-full w-10 h-10 cursor-pointer" />
               </div>
-              <div className="flex gap-4 p-2">
-                <span className={`${colorMap[color].bg1} text-green-600 py-1 px-2 rounded-full text-sm`}>Semua</span>
-                <span className={`${colorMap[color].bg3} ${colorMap[color].bg2} py-1 px-2 rounded-full text-sm`}>Belum dibaca</span>
-                <span className={`${colorMap[color].bg3} ${colorMap[color].bg2} py-1 px-2 rounded-full text-sm`}>Grup</span>
+              <div className="grid grid-cols-5 gap-4 sm:20 md:me-0">
+                <PiUsersThreeFill size={22} className="hidden sm:block cursor-pointer" />
+                <FaNfcDirectional size={22} className="hidden sm:block cursor-pointer" />
+                <IoChatbubbleOutline size={22} className="cursor-pointer" />
+                <FiFolderPlus size={22} className="cursor-pointer" />
+                <HiOutlineDotsVertical size={22} className="cursor-pointer" />
               </div>
-            </div>
-            {/* chatting */}
-            <div className={`border-t ${colorMap[color].border1} overflow-y-auto max-h-[calc(100vh-13rem)]`}>
-              {chats.map((chat) => (
-                <div className={`${colorMap[color].bg2} cursor-pointer md:cursor-default`} key={chat.id} onClick={matches? handleChat : undefined} >
-                  <div className="py-4 px-2 flex justify-between">
-                    <div className="flex gap-4">
-                      <img src={chat.avatar} alt="AI Robot" className="w-12 h-12 rounded-full" />
-                      <div>
-                        <p>{chat.name}</p>
-                        <p className={`text-sm ${colorMap[color].text5} flex gap-2 items-center`}>
-                          <IoCheckmarkDone className={chat.status === "done" ? "text-green-500" : `${colorMap[color].text5}`} />
-                          {chat.message}
-                        </p>
+            </header>
+            <main className={`${colorMap[color].bg4}`}>
+              <div className="p-2">
+                <div className={`flex ${colorMap[color].bg3} ${colorMap[color].bg2} p-2 rounded items-center`}>
+                  <IoMdSearch size={25} className="bg-transparent" />
+                  <input type="text" placeholder="search" className="w-full py-1 ps-6 text-sm bg-transparent focus:outline-none" />
+                </div>
+                <div className="flex gap-4 p-2">
+                  <span className={`${colorMap[color].bg1} text-green-600 py-1 px-2 rounded-full text-sm cursor-pointer`}>Semua</span>
+                  <span className={`${colorMap[color].bg3} ${colorMap[color].bg2} py-1 px-2 rounded-full text-sm cursor-pointer`}>Belum dibaca</span>
+                  <span className={`${colorMap[color].bg3} ${colorMap[color].bg2} py-1 px-2 rounded-full text-sm cursor-pointer`}>Grup</span>
+                </div>
+              </div>
+              {/* chatting */}
+              <div className={`border-t ${colorMap[color].border1} overflow-y-auto max-h-[calc(100vh-13rem)]`}>
+                {chats.map((chat) => (
+                  <div className={`${colorMap[color].bg2} cursor-pointer md:cursor-default`} key={chat.id} onClick={matches ? handleChat : undefined} >
+                    <div className="py-4 px-2 flex justify-between">
+                      <div className="flex gap-4">
+                        <img src={chat.avatar} alt="AI Robot" className="w-12 h-12 rounded-full cursor-pointer" />
+                        <div>
+                          <p>{chat.name}</p>
+                          <p className={`text-sm ${colorMap[color].text5} flex gap-2 items-center`}>
+                            <IoCheckmarkDone className={chat.status === "done" ? "text-green-500" : `${colorMap[color].text5}`} />
+                            {chat.message}
+                          </p>
+                        </div>
                       </div>
+                      <p className={`text-sm ${colorMap[color].text5} me-4`}>{chat.timestamp}</p>
                     </div>
-                    <p className={`text-sm ${colorMap[color].text5} me-4`}>{chat.timestamp}</p>
+                  </div>
+                ))}
+              </div>
+            </main>
+          </aside>
+          {/* right */}
+          <aside className={`${isChat ? "block z-10 w-full" : "hidden"} z-0 md:block lg:w-2/3`}>
+            <header className="px-4 py-1 flex items-center justify-between me-20">
+              <div className="flex gap-4 items-center">
+                <FaArrowLeft size={22} onClick={() => setIsChat(false)} className={`${isChat ? "block" : "hidden"} cursor-pointer`} />
+                <img src="/ai.jpg" alt="luffy" className="rounded-full w-10 h-10 cursor-pointer" />
+                <div>
+                  <p>Chat GTP</p>
+                  <p className={`text-sm ${colorMap[color].text5}`}>Online</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <IoVideocam size={22} className="cursor-pointer" />
+                <IoMdSearch size={22} className="cursor-pointer" />
+                <HiOutlineDotsVertical size={22} className="cursor-pointer" />
+              </div>
+            </header>
+            <main className={`${colorMap[color].bg2} overflow-y-auto max-h-[calc(100vh-6rem)]`}>
+              {chattings.map((chatting, index) => (
+                <div key={index} className="space-y-8 flex gap-4 justify-between px-10 py-2">
+                  <div>
+                    <p className={`py-2 px-4 ${colorMap[color].bg3} rounded text-justify`}>{chatting.sender}</p>
+                  </div>
+                  <div>
+                    <p className={`py-2 px-4 ${colorMap[color].bg3} rounded text-justify`}>{chatting.receiver}</p>
                   </div>
                 </div>
               ))}
-            </div>
-          </main>
-        </aside>
-        {/* right */}
-        <aside className={`${isChat ? "block z-10 w-full" : "hidden"} z-0 md:block lg:w-2/3`}>
-          <header className="px-4 py-1 flex items-center justify-between me-20">
-            <div className="flex gap-4 items-center">
-              <FaArrowLeft size={22} onClick={() => setIsChat(false)} className={`${isChat ? "block" : "hidden"} cursor-pointer`} />
-              <img src="/ai.jpg" alt="luffy" className="rounded-full w-10 h-10" />
-              <div>
-                <p>Chat GTP</p>
-                <p className={`text-sm ${colorMap[color].text5}`}>Online</p>
+              <div className={`sticky bottom-0 flex gap-6 ${colorMap[color].bg4} ${colorMap[color].bg2} py-4 px-6 items-center backdrop-blur-xl`}>
+                <MdOutlineInsertEmoticon size={30} className="cursor-pointer" />
+                <FaPlus size={25} className="cursor-pointer" />
+                <input type="text" className={`w-full focus:outline-none ${colorMap[color].bg3} px-4 py-1 rounded`} placeholder="Type here..." />
+                <IoMdSend size={32} className="cursor-pointer" />
               </div>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <IoVideocam size={22} />
-              <IoMdSearch size={22} />
-              <HiOutlineDotsVertical size={22} />
-            </div>
-          </header>
-          <main className={`${colorMap[color].bg2} overflow-y-auto max-h-[calc(100vh-6rem)]`}>
-            {chattings.map((chatting, index) => (
-              <div key={index} className="space-y-8 flex gap-4 justify-between px-10 py-2">
-                <div>
-                  <p className={`py-2 px-4 ${colorMap[color].bg3} rounded text-justify`}>{chatting.sender}</p>
-                </div>
-                <div>
-                  <p className={`py-2 px-4 ${colorMap[color].bg3} rounded text-justify`}>{chatting.receiver}</p>
-                </div>
-              </div>
-            ))}
-            <div className={`sticky bottom-0 flex gap-6 ${colorMap[color].bg4} ${colorMap[color].bg2} py-4 px-6 items-center backdrop-blur-xl`}>
-              <MdOutlineInsertEmoticon size={30} />
-              <FaPlus size={25} />
-              <input type="text" className={`w-full focus:outline-none ${colorMap[color].bg3} px-4 py-1 rounded`} placeholder="Type here..." />
-              <IoMdSend size={32} />
-            </div>
-          </main>
-        </aside>
-      </section>
-    </main>
+            </main>
+          </aside>
+        </section>
+      </main>
+    </WrapperMode>
   );
 }
